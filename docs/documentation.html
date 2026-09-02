@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ionome &mdash; Documentation</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="alternate icon" href="favicon.ico">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a href="index.html" class="brand"><img src="assets/icons/favicon.svg" alt=""> Ionome</a>
+    <a href="index.html">Home</a>
+    <a href="pipeline.html">Pipeline</a>
+    <a href="background.html">Background</a>
+    <a href="documentation.html" class="current">Documentation</a>
+    <a href="stages.html">Stages</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="development.html">Development</a>
+    <a href="about.html">About</a>
+    <a class="gh-link" href="https://github.com/YOUR_USERNAME/YOUR_REPO" title="TODO: replace with the real repo URL">GitHub &rarr;</a>
+  </div>
+</nav>
+
+<header class="page-header">
+  <h1>Documentation</h1>
+  <p class="tagline">Installation, getting started, the web app, the REST API, the Stage contract, and configuration.</p>
+</header>
+
+<div class="layout">
+  <nav class="sidebar">
+    <h4>Documentation</h4>
+    <ul>
+      <li><a href="#installation">Installation</a></li>
+      <li><a href="#getting-started">Getting Started</a></li>
+      <li><a href="#using-the-web-app">Using the Web App</a></li>
+      <li><a href="#configuration">Configuration</a></li>
+      <li><a href="#api-reference">API Reference</a></li>
+      <li><a href="#stage-contract">Stage Contract</a></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <section id="installation">
+      <h2>Installation</h2>
+      <pre class="code-block"><code>git clone &lt;repo-url&gt;
+cd lcms_api
+
+# dependencies (uv, or plain pip)
+uv sync
+# -- or --
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e .
+
+cp .env.example .env   # then fill in the paths below</code></pre>
+      <p>Required settings in <code>.env</code> (see <code>core/settings.py</code>):</p>
+      <table class="diff-table">
+        <tr><th><code>LCMS_RAW_DATA_DIR</code></th><td>Where raw <code>.mzML</code>/<code>.mzXML</code> files and each study's sample-metadata CSV live, one subfolder per <code>study_id</code>.</td></tr>
+        <tr><th><code>LCMS_RESULTS_DIR</code></th><td>Where pipeline output (feature tables, QC reports, plots) is written, one subfolder per <code>study_id</code>.</td></tr>
+        <tr><th><code>YAML_DIR</code></th><td>Where each study's experiment config YAML is written/read.</td></tr>
+        <tr><th><code>LCMS_DB_PATH</code></th><td>SQLite file backing the <code>Experiment</code>/<code>Sample</code>/<code>Pipeline</code> tables.</td></tr>
+        <tr><th><code>LCMS_REFERENCE_LIBRARY_DIR</code></th><td>Reference compound library used by <code>standards_only</code> matching.</td></tr>
+      </table>
+      <p>Then start the web app:</p>
+      <pre class="code-block"><code>uvicorn api.main:app --reload</code></pre>
+      <p>The dashboard is at <code>http://localhost:8000/</code>. Tables are created automatically on first startup (<code>create_db_and_tables</code>), no separate migration step needed.</p>
+    </section>
+
+    <section id="getting-started">
+      <h2>Getting Started</h2>
+      <p>There are two ways to set up and run a study &mdash; pick whichever fits how you work. Everything below produces the exact same result: a validated experiment config YAML, a sample-metadata CSV, and an <code>Experiment</code> row ready to run.</p>
+
+      <div class="doc-tabs" data-doc-tabgroup="getting-started">
+        <button class="active" data-doc-tab="webapp" data-doc-tabgroup="getting-started">Web App</button>
+        <button data-doc-tab="cli" data-doc-tabgroup="getting-started">CLI / Manual</button>
+      </div>
+
+      <div class="doc-tab-panel active" data-doc-panel="webapp" data-doc-tabgroup-target="getting-started">
+        <p>The recommended path, especially for anyone not comfortable hand-editing YAML. Drop your raw files, then walk through the wizard:</p>
+        <ol>
+          <li>Copy the study's <code>.mzML</code>/<code>.mzXML</code> files into <code>&lt;LCMS_RAW_DATA_DIR&gt;/&lt;study_id&gt;/</code>.</li>
+          <li>On the dashboard, click <strong>+ New Study</strong>.</li>
+          <li><strong>Study ID</strong> &mdash; type the same <code>study_id</code> you used for the folder above and scan for raw files.</li>
+          <li><strong>Sample metadata</strong> &mdash; the wizard pre-fills <code>sample_id</code> for every file it found; fill in <code>sample_role</code> (e.g. <code>QC</code>, or a treatment group) for each row.</li>
+          <li><strong>Config</strong> &mdash; pick polarity, instrument, and dataset profile. Everything else (feature detection thresholds, alignment tolerance, QC thresholds, etc.) is pre-filled from the lab's standard defaults in <code>config/experiments/template.yaml</code> &mdash; edit the generated YAML by hand afterward only if this run needs different values.</li>
+          <li>Submit. The wizard validates the config, checks every declared sample has a matching raw file, and only then creates the study.</li>
+        </ol>
+        <p>See <a href="#using-the-web-app">Using the Web App</a> below for what happens after the study exists.</p>
+      </div>
+
+      <div class="doc-tab-panel" data-doc-panel="cli" data-doc-tabgroup-target="getting-started">
+        <p>For scripting, or working directly on the filesystem without the browser in the loop.</p>
+        <ol>
+          <li>Drop raw files into <code>&lt;LCMS_RAW_DATA_DIR&gt;/&lt;study_id&gt;/</code>, same as above.</li>
+          <li>Write <code>&lt;study_id&gt;_sample_metadata.csv</code> into that same folder &mdash; one row per sample, at minimum a <code>sample_id</code> column matching each raw file's stem, plus <code>sample_role</code>.</li>
+          <li>Copy <code>config/experiments/template.yaml</code> to <code>&lt;YAML_DIR&gt;/&lt;study_id&gt;.yaml</code> and fill in <code>study.id</code>, <code>study.polarity</code>, <code>study.instrument</code>, <code>dataset_profile</code>, and <code>files.sample_metadata</code>.</li>
+          <li>Create the <code>Experiment</code> row and run, either via the API (see <a href="#api-reference">API Reference</a>) or directly in Python:</li>
+        </ol>
+        <pre class="code-block"><code>from src.pipeline_orchestrator import run_pipeline_for_study
+
+context = run_pipeline_for_study("your_study_id")</code></pre>
+        <p class="todo">TODO: a real standalone CLI entrypoint (argparse/click) doesn't exist yet &mdash; today "CLI" means writing the files by hand and either hitting <code>POST /studies</code> or calling <code>run_pipeline_for_study</code> directly from a Python shell/script.</p>
+      </div>
+    </section>
+
+    <section id="using-the-web-app">
+      <h2>Using the Web App</h2>
+
+      <div class="feature-list">
+        <div class="feature">
+          <h4>Dashboard</h4>
+          <p>One row per study: profile, status, a live sample-status breakdown (pending / running / success / failed), created/last-run timestamps. Auto-refreshes while any study is running. Click a row to open its study page.</p>
+        </div>
+        <div class="feature">
+          <h4>New Study wizard</h4>
+          <p>The three-step flow covered in <a href="#getting-started">Getting Started</a> &mdash; scan raw files, fill sample metadata, confirm config.</p>
+        </div>
+        <div class="feature">
+          <h4>Study detail &mdash; Samples</h4>
+          <p>Every ingested sample with its role and status. A readiness banner up top shows how many of the declared samples actually have a raw file present. Click a sample to see its own chromatograms.</p>
+        </div>
+        <div class="feature">
+          <h4>Study detail &mdash; Plots</h4>
+          <p>Cohort-wide plots grouped into sub-tabs (chromatograms, summary stats, volcano, heatmap/clustering, PLS-DA, XIC) &mdash; whichever categories the run actually produced. Click any plot to open it full-size.</p>
+        </div>
+        <div class="feature">
+          <h4>Study detail &mdash; Feature Table</h4>
+          <p>A preview of the first ~20 rows of the feature table (cohort mode) or library (standards_only), with a link to download the full CSV.</p>
+        </div>
+        <div class="feature">
+          <h4>Study detail &mdash; QC Report / Run History</h4>
+          <p>The raw <code>qc_report.json</code> for the study, and a list of every pipeline run with per-run status and step count.</p>
+        </div>
+        <div class="feature">
+          <h4>Run button</h4>
+          <p>Always re-runs the full dataset-profile batch (cohort-wide stages like alignment and stats aren't per-sample, so there's no partial/incremental re-run). Status updates propagate back to the dashboard and the sample table automatically.</p>
+        </div>
+        <div class="feature">
+          <h4>Sample detail page</h4>
+          <p>One sample's own TIC/BPC chromatograms plus its role, checksum, and ingestion time &mdash; separate from the study-wide cohort plots.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="configuration">
+      <h2>Configuration</h2>
+      <p>
+        The pipeline runs in one of two <code>dataset_profile</code> modes:
+      </p>
+      <table class="diff-table">
+        <tr><th></th><th>standards_only</th><th>cohort_with_qc</th></tr>
+        <tr><td>Use case</td><td>Single-standard runs, known reference compounds</td><td>Full multi-sample biological cohorts</td></tr>
+        <tr><td>Status</td><td>Complete &middot; tested</td><td>Validated on real data (MTBLS1301)</td></tr>
+      </table>
+      <p>The profile is a field in the study's config YAML (<code>dataset_profile:</code>) &mdash; set via the Config step of the intake wizard, or by hand if working from the CLI/Manual path in <a href="#getting-started">Getting Started</a>. Every other stage parameter (feature detection thresholds, alignment tolerance, blank/QC thresholds, etc.) has a lab-standard default in <code>config/experiments/template.yaml</code>; override any of them per-study by editing the generated YAML directly.</p>
+    </section>
+
+    <section id="api-reference">
+      <h2>API Reference</h2>
+      <p>The web app's HTML pages and the REST API below share the same underlying logic &mdash; anything the wizard/dashboard/study pages can do, these endpoints can do too. Useful for scripting against a running instance instead of clicking through the browser.</p>
+
+      <h3>Studies</h3>
+      <table class="diff-table endpoint-table">
+        <tr><td><code>GET /studies</code></td><td>Dashboard summary &mdash; one entry per study with sample-status counts.</td></tr>
+        <tr><td><code>GET /studies/config-defaults</code></td><td>The lab-standard config template used to pre-fill new studies.</td></tr>
+        <tr><td><code>GET /studies/{study_id}/raw-files</code></td><td>Scans the raw-data folder for a study_id and returns candidate sample_ids. Works before the study exists.</td></tr>
+        <tr><td><code>POST /studies</code></td><td>Creates a study: validates config, checks every sample has a raw file, writes the YAML+CSV, creates the <code>Experiment</code> row, ingests samples. Body: <code>{"config": {...}, "sample_rows": [...]}</code>.</td></tr>
+        <tr><td><code>GET /studies/{study_id}/sample-readiness</code></td><td>Diffs declared samples against what's actually present on disk.</td></tr>
+      </table>
+
+      <h3>Samples</h3>
+      <table class="diff-table endpoint-table">
+        <tr><td><code>POST /studies/{study_id}/ingest-samples</code></td><td>Re-runs ingestion from the study's sample-metadata CSV.</td></tr>
+        <tr><td><code>GET /studies/{study_id}/samples</code></td><td>Lists every ingested sample with role/status/checksum.</td></tr>
+      </table>
+
+      <h3>Runs</h3>
+      <table class="diff-table endpoint-table">
+        <tr><td><code>POST /studies/{study_id}/run</code></td><td>Kicks off a full pipeline run as a background task. Returns a <code>run_id</code> immediately.</td></tr>
+        <tr><td><code>GET /studies/{study_id}/status</code></td><td>The study's current overall status.</td></tr>
+        <tr><td><code>GET /studies/{study_id}/runs/{run_id}</code></td><td>Per-stage status/timing/error detail for one run.</td></tr>
+      </table>
+
+      <h3>Results</h3>
+      <table class="diff-table endpoint-table">
+        <tr><td><code>GET /studies/{study_id}/results/qc-report</code></td><td>The full QC report JSON for the study.</td></tr>
+        <tr><td><code>GET /studies/{study_id}/results/table/preview</code></td><td>First ~20 rows of the feature table / library, plus total row count.</td></tr>
+        <tr><td><code>GET /studies/{study_id}/results/table.csv</code></td><td>Full feature table / library download.</td></tr>
+        <tr><td><code>GET /studies/{study_id}/results/plots</code></td><td>Every plot the run produced, grouped by category.</td></tr>
+        <tr><td><code>GET /studies/{study_id}/results/plots/{category}/{filename}</code></td><td>One plot PNG.</td></tr>
+        <tr><td><code>GET /studies/{study_id}/results/runs</code></td><td>Run history: one summary row per run_id.</td></tr>
+      </table>
+
+      <h3>Examples</h3>
+      <pre class="code-block"><code># kick off a run and poll it
+curl -X POST http://localhost:8000/studies/dkfz/run
+curl http://localhost:8000/studies/dkfz/runs/&lt;run_id&gt;
+
+# pull the QC report once a run finishes
+curl http://localhost:8000/studies/dkfz/results/qc-report | jq</code></pre>
+    </section>
+
+    <section id="stage-contract">
+      <h2>Stage Contract</h2>
+      <p>Every pipeline stage implements the same three-method contract:</p>
+      <table class="diff-table">
+        <tr><th><code>validate_input(context)</code></th><td>Raises <code>FatalStageError</code> if a required upstream stage hasn't run or required context data is missing. Returns <code>True</code> otherwise.</td></tr>
+        <tr><th><code>execute(context)</code></th><td>Does the stage's work, updates <code>context.qc_metrics[stage_name]</code>, calls <code>context.log_step(...)</code>, returns the (mutated) context.</td></tr>
+        <tr><th><code>validate_output(context)</code></th><td>Sanity-checks that <code>execute</code> actually produced its expected output. Returns a bool.</td></tr>
+      </table>
+      <p class="todo">TODO: full public class/method reference (<code>LCMSContext</code> full field list, <code>Sample</code>/<code>Experiment</code> DB models beyond what's in <a href="#api-reference">API Reference</a>).</p>
+    </section>
+
+  </main>
+</div>
+
+
+<footer>
+  Ionome &middot; <a href="https://github.com/YOUR_USERNAME/YOUR_REPO" title="TODO: replace with the real repo URL">GitHub repository</a>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

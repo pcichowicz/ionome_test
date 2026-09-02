@@ -1,0 +1,32 @@
+[project]
+name = "ionome-analysis"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "ionome-core",
+    "pandas",
+    "numpy",
+    "scipy",
+    "scikit-learn",
+    "statsmodels",
+    "matplotlib",
+    "seaborn",
+    "tqdm",
+    "pyteomics",
+    "pymzml",
+    "lxml",
+    "python-dotenv",
+    "pydantic",
+    "pyarrow>=25.0.0",
+    "fastparquet>=2026.5.0",
+]
+
+[tool.uv.sources]
+ionome-core = { workspace = true }
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

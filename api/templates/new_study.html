@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}New Study - LCMS Pipeline{% endblock %}
+{% block content %}
+  <h1>New Study</h1>
+  <div class="error-summary" id="error-summary"></div>
+
+  <div class="wizard-panel">
+
+    <section class="wizard-step active" id="step-1">
+      <h2>1. Study ID</h2>
+      <div class="field-row">
+        <label for="study-id-input">Study ID</label>
+        <input type="text" id="study-id-input" placeholder="e.g. dkfz">
+        <p class="hint">Matches the raw-data folder name: <code>raw_data/&lt;study_id&gt;/</code></p>
+      </div>
+      <div class="wizard-actions">
+        <span></span>
+        <button id="scan-btn">Scan for raw files &rarr;</button>
+      </div>
+    </section>
+
+    <section class="wizard-step" id="step-2">
+      <h2>2. Sample metadata</h2>
+      <p class="hint" id="scan-summary"></p>
+      <table id="samples-table">
+        <thead><tr><th>sample_id</th><th>sample_role</th></tr></thead>
+        <tbody id="samples-tbody"></tbody>
+      </table>
+      <div class="wizard-actions">
+        <button class="secondary" id="back-to-1">&larr; Back</button>
+        <button id="to-step-3">Next: config &rarr;</button>
+      </div>
+    </section>
+
+    <section class="wizard-step" id="step-3">
+      <h2>3. Experiment config</h2>
+      <div class="field-row">
+        <label for="polarity-input">Polarity</label>
+        <select id="polarity-input">
+          <option value="positive">positive</option>
+          <option value="negative">negative</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label for="instrument-input">Instrument</label>
+        <input type="text" id="instrument-input" placeholder="e.g. Orbitrap">
+      </div>
+      <div class="field-row">
+        <label for="profile-input">Dataset profile</label>
+        <select id="profile-input">
+          <option value="standards_only">standards_only</option>
+          <option value="cohort_with_qc">cohort_with_qc</option>
+        </select>
+      </div>
+      <p class="hint">All other stage parameters (feature detection, alignment, library matching, etc.) use the lab's standard defaults. They can be edited directly in the generated YAML afterward if this run needs different values.</p>
+      <div class="wizard-actions">
+        <button class="secondary" id="back-to-2">&larr; Back</button>
+        <button id="submit-btn">Submit</button>
+      </div>
+    </section>
+
+  </div>
+{% endblock %}
+{% block scripts %}
+<script src="/static/js/new_study.js"></script>
+{% endblock %}

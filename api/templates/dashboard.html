@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Studies - LCMS Pipeline{% endblock %}
+{% block content %}
+  <h1>Studies</h1>
+
+  {% if studies %}
+  <table id="studies-table">
+    <thead>
+      <tr>
+        <th>Study ID</th>
+        <th>Profile</th>
+        <th>Status</th>
+        <th>Samples</th>
+        <th>Created</th>
+        <th>Last run</th>
+      </tr>
+    </thead>
+    <tbody id="studies-tbody"></tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <p>No studies yet.</p>
+    <a class="new-study-btn" href="/studies/new">+ New Study</a>
+  </div>
+  {% endif %}
+{% endblock %}
+{% block scripts %}
+<script id="initial-studies" type="application/json">{{ studies_json | safe }}</script>
+<script src="/static/js/dashboard.js"></script>
+{% endblock %}

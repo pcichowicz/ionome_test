@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ionome &mdash; Home</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="alternate icon" href="favicon.ico">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a href="index.html" class="brand"><img src="assets/icons/favicon.svg" alt=""> Ionome</a>
+    <a href="index.html" class="current">Home</a>
+    <a href="pipeline.html">Pipeline</a>
+    <a href="background.html">Background</a>
+    <a href="documentation.html">Documentation</a>
+    <a href="stages.html">Stages</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="development.html">Development</a>
+    <a href="about.html">About</a>
+    <a class="gh-link" href="https://github.com/YOUR_USERNAME/YOUR_REPO" title="TODO: replace with the real repo URL">GitHub &rarr;</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <img class="brand-icon" src="assets/icons/favicon.svg" alt="">
+  <h1>Ionome</h1>
+  <p class="tagline">
+    An automated LC-MS metabolomics pipeline &mdash; from raw instrument files
+    to annotated, cross-sample feature tables, statistically validated
+    findings, and chromatographic verification &mdash; built to handle both
+    single-standard runs and full multi-sample cohorts with QC.
+  </p>
+  <p class="links">
+    <a href="https://github.com/YOUR_USERNAME/YOUR_REPO" title="TODO: replace with the real repo URL">View the repository on GitHub &rarr;</a>
+  </p>
+</header>
+
+<div class="layout" style="display:block; max-width:800px;">
+<main style="max-width:800px;">
+
+<section id="feature-highlights">
+  <h2>What this does</h2>
+  <p>
+    Ingests raw LC-MS files (<code>.mzML</code> / <code>.mzXML</code>),
+    detects and aligns ion features across a full sample cohort, annotates
+    adduct relationships, matches against a spectral library, and produces
+    QC-checked, statistically validated, exportable feature tables &mdash;
+    plus the volcano/PLS-DA/XIC plots to back up any biological claim it
+    makes.
+  </p>
+
+  <div class="feature-list">
+    <div class="feature">
+      <h4>Two run profiles</h4>
+      <p><code>standards_only</code> for single-standard runs; <code>cohort_with_qc</code>
+      for full multi-sample cohorts with cross-sample alignment. See <a href="pipeline.html">Pipeline Overview</a>.</p>
+    </div>
+    <div class="feature">
+      <h4>Format-agnostic ingestion</h4>
+      <p>Every stage that touches raw scans dispatches by file extension, so
+      <code>.mzML</code> and <code>.mzXML</code> studies run through the same
+      code path &mdash; no per-format special-casing downstream.</p>
+    </div>
+    <div class="feature">
+      <h4>Evidence-based thresholds</h4>
+      <p>RT and correlation tolerances come from real histograms of the
+      data (RT-drift between QC mass-matched pairs; adduct correlation
+      distributions), not defaults carried over from a different profile.</p>
+    </div>
+    <div class="feature">
+      <h4>Stats + verification, not just detection</h4>
+      <p>Volcano/heatmap/PLS-DA statistical stages, followed by XIC
+      chromatogram verification of every statistically significant
+      finding &mdash; see <a href="gallery.html">Gallery</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section id="pipeline-preview">
+  <h2>Pipeline at a glance</h2>
+  <div class="diagram-card">
+    <img src="assets/diagrams/cohort_with_qc_pipeline.svg" alt="Cohort-with-QC pipeline diagram" style="width:100%">
+  </div>
+  <p><a href="pipeline.html">Full architecture &amp; design decisions &rarr;</a></p>
+</section>
+
+<section id="results-preview">
+  <h2>A real result</h2>
+  <p>
+    Run against MTBLS1301 (DKFZ, negative-mode HILIC, 3 cell lines &times; 3
+    replicates + pooled QC), the pipeline found a statistically significant
+    metabolomic difference between the T691 and TUM6 cell lines &mdash;
+    confirmed by three independent lines of evidence: volcano-plot
+    statistics, PLS-DA class separation, and visually-verified XIC peak
+    shapes for the underlying compounds.
+  </p>
+  <div class="gallery-grid">
+    <div class="gallery-item">
+      <img src="assets/results/volcano_T691_vs_TUM6.png" alt="Volcano plot, T691 vs TUM6">
+      <div class="caption"><strong>Volcano &mdash; T691 vs TUM6</strong>, the strongest of three pairwise comparisons</div>
+    </div>
+    <div class="gallery-item">
+      <img src="assets/results/plsda_scores.png" alt="PLS-DA score plot showing clean separation of NSC, T691, TUM6">
+      <div class="caption"><strong>PLS-DA</strong> &mdash; clean 3-way class separation, independently supporting the same signal</div>
+    </div>
+    <div class="gallery-item">
+      <img src="assets/results/xic_1312_Hypotaurine.png" alt="XIC verification plot for Hypotaurine">
+      <div class="caption"><strong>XIC &mdash; Hypotaurine</strong>, one of the significant features, visually confirmed as a real chromatographic peak</div>
+    </div>
+  </div>
+  <p><a href="gallery.html">Full results gallery &rarr;</a></p>
+</section>
+
+</main>
+</div>
+
+
+<footer>
+  Ionome &middot; <a href="https://github.com/YOUR_USERNAME/YOUR_REPO" title="TODO: replace with the real repo URL">GitHub repository</a>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

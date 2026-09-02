@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ionome &mdash; Scientific Background</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="alternate icon" href="favicon.ico">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a href="index.html" class="brand"><img src="assets/icons/favicon.svg" alt=""> Ionome</a>
+    <a href="index.html">Home</a>
+    <a href="pipeline.html">Pipeline</a>
+    <a href="background.html" class="current">Background</a>
+    <a href="documentation.html">Documentation</a>
+    <a href="stages.html">Stages</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="development.html">Development</a>
+    <a href="about.html">About</a>
+    <a class="gh-link" href="https://github.com/YOUR_USERNAME/YOUR_REPO" title="TODO: replace with the real repo URL">GitHub &rarr;</a>
+  </div>
+</nav>
+
+<header class="page-header">
+  <h1>Scientific Background</h1>
+  <p class="tagline">Enough to follow along with the pipeline and results &mdash; not a metabolomics textbook.</p>
+</header>
+
+<div class="layout">
+  <nav class="sidebar">
+    <h4>Background</h4>
+    <ul>
+      <li><a href="#lcms-basics">LC-MS basics</a></li>
+      <li><a href="#ms1-ms2">MS1 vs MS2</a></li>
+      <li><a href="#peaks-features">Peaks, features &amp; adduct groups</a></li>
+      <li><a href="#hilic-neg">HILIC, negative mode</a></li>
+      <li><a href="#terminology">Terminology</a></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <section id="lcms-basics">
+      <h2>LC-MS basics</h2>
+      <p>
+        Liquid chromatography&ndash;mass spectrometry separates a complex
+        mixture (a biological sample) by chemical properties as it flows
+        through a column (<strong>retention time</strong>, RT), then
+        measures the mass-to-charge ratio (<strong>m/z</strong>) of
+        whatever elutes at each moment. The result is a 3D landscape: RT
+        &times; m/z &times; intensity, for every scan the instrument takes
+        across the run.
+      </p>
+    </section>
+
+    <section id="ms1-ms2">
+      <h2>MS1 vs MS2</h2>
+      <p>
+        <strong>MS1</strong> scans measure intact ion masses &mdash; this is
+        where feature detection, alignment, and quantification happen.
+        <strong>MS2</strong> scans fragment a selected precursor ion to get
+        a structural fingerprint, used for compound identification via
+        library matching. In Data-Dependent Acquisition (DDA), the
+        instrument can only fragment a handful of the most intense ions per
+        cycle ("top N"), so MS2 coverage is inherently sparse &mdash; most
+        features never get triggered for MS2 at all. This is why purity
+        scoring here is computed from MS1 co-elution rather than requiring
+        an actual MS2 event (see <a href="pipeline.html#dd-ms2">Design
+        Decisions</a>).
+      </p>
+    </section>
+
+    <section id="peaks-features">
+      <h2>Peaks, features &amp; adduct groups</h2>
+      <p>
+        A <strong>peak</strong> is a single chromatographic elution event at
+        one m/z, in one sample. A <strong>feature</strong> is the aligned,
+        cross-sample version of that peak &mdash; the same underlying ion,
+        matched across every sample in the cohort despite small RT/mz
+        drift between runs. A single compound in negative-mode ESI
+        typically produces <em>several</em> related ions &mdash; the
+        deprotonated molecule, isotopes, adducts, in-source fragments, and
+        sometimes a dimer &mdash; which is why features get further grouped
+        into <strong>adduct groups</strong> (via RT co-elution + intensity
+        correlation across samples) before compound identification.
+      </p>
+    </section>
+
+    <section id="hilic-neg">
+      <h2>HILIC, negative mode</h2>
+      <p>
+        HILIC (hydrophilic interaction liquid chromatography) retains
+        small, polar metabolites &mdash; amino acids, organic acids, sugars
+        &mdash; that a standard reverse-phase column would barely retain at
+        all. Negative-mode electrospray ionization favors acidic/polar
+        compounds, which is why charge states are uniformly &ndash;1 for
+        this kind of run, and why small polar metabolites (proline,
+        taurine, hypotaurine) tend to elute early in the gradient.
+      </p>
+    </section>
+
+    <section id="terminology">
+      <h2>Terminology</h2>
+      <table class="diff-table">
+        <tr><th>Term</th><td>Meaning</td></tr>
+        <tr><td>RT</td><td>Retention time &mdash; when a compound elutes from the column</td></tr>
+        <tr><td>m/z</td><td>Mass-to-charge ratio, what the mass spectrometer actually measures</td></tr>
+        <tr><td>TIC / BPC</td><td>Total Ion Chromatogram / Base Peak Chromatogram &mdash; whole-run summary traces, used for QC</td></tr>
+        <tr><td>XIC</td><td>Extracted Ion Chromatogram &mdash; intensity over RT for one specific m/z window, used to verify one feature's peak shape</td></tr>
+        <tr><td>Adduct</td><td>A related ion form of the same underlying compound (e.g. loss of H, gain of Na)</td></tr>
+        <tr><td>DDA</td><td>Data-Dependent Acquisition &mdash; instrument selects precursors for MS2 in real time, "top N" per cycle</td></tr>
+        <tr><td>%CV / RSD</td><td>Coefficient of variation &mdash; QC replicate consistency metric</td></tr>
+        <tr><td>FDR</td><td>False Discovery Rate &mdash; multiple-testing-corrected significance</td></tr>
+      </table>
+    </section>
+
+  </main>
+</div>
+
+
+<footer>
+  Ionome &middot; <a href="https://github.com/YOUR_USERNAME/YOUR_REPO" title="TODO: replace with the real repo URL">GitHub repository</a>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

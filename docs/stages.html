@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ionome &mdash; Stages</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="alternate icon" href="favicon.ico">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a href="index.html" class="brand"><img src="assets/icons/favicon.svg" alt=""> Ionome</a>
+    <a href="index.html">Home</a>
+    <a href="pipeline.html">Pipeline</a>
+    <a href="background.html">Background</a>
+    <a href="documentation.html">Documentation</a>
+    <a href="stages.html" class="current">Stages</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="development.html">Development</a>
+    <a href="about.html">About</a>
+    <a class="gh-link" href="https://github.com/YOUR_USERNAME/YOUR_REPO" title="TODO: replace with the real repo URL">GitHub &rarr;</a>
+  </div>
+</nav>
+
+<header class="page-header">
+  <h1>Stages</h1>
+  <p class="tagline">All 16 cohort-mode stages, in run order. <span class="badge modified">modified for cohort</span> stages have reworked logic from their standards-only counterpart; <span class="badge new">new</span> stages don't exist in standards-only at all.</p>
+</header>
+
+<div class="layout">
+  <nav class="sidebar">
+    <h4>Stages</h4>
+    <ul>
+      <li><a href="#stage-ingestion">ingestion</a></li>
+      <li><a href="#stage-scan-summary-cache">scan_summary_cache</a></li>
+      <li><a href="#stage-chromatogram-plotting">chromatogram_plotting</a></li>
+      <li><a href="#stage-system-suitability">system_suitability</a></li>
+      <li><a href="#stage-feature-detection">feature_detection</a></li>
+      <li><a href="#stage-feature-alignment">feature_alignment</a></li>
+      <li><a href="#stage-blank-qc">blank_qc</a></li>
+      <li><a href="#stage-adduct-annotation">adduct_annotation</a></li>
+      <li><a href="#stage-spectral-purity">spectral_purity</a></li>
+      <li><a href="#stage-library-matching">library_matching</a></li>
+      <li><a href="#stage-library-assembly">library_assembly</a></li>
+      <li><a href="#stage-summary-stats-plotting">summary_stats_plotting</a></li>
+      <li><a href="#stage-volcano-plot">volcano_plot</a></li>
+      <li><a href="#stage-heatmap-clustering">heatmap_clustering</a></li>
+      <li><a href="#stage-plsda">plsda</a></li>
+      <li><a href="#stage-xic-plotting">xic_plotting</a></li>
+      <li><a href="#stage-export">export</a></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <div class="stage" id="stage-ingestion">
+      <h3>ingestion</h3>
+      <p>Registers each sample &mdash; and its raw file &mdash; into the pipeline's database, from a metadata CSV plus a directory of raw files.</p>
+      <div class="io">sample metadata CSV + raw files &rarr; registered Sample records</div>
+      <p class="note">Design note: raw file lookup dispatches by extension, so the same ingestion path handles both <code>.mzML</code> and <code>.mzXML</code> studies without per-format special-casing downstream.</p>
+    </div>
+
+    <div class="stage" id="stage-scan-summary-cache">
+      <h3>scan_summary_cache</h3>
+      <p>Extracts and caches per-scan summary data (retention time, MS level, etc.) from each sample's raw file, so downstream stages don't need to re-parse the raw file directly.</p>
+      <div class="io">raw file &rarr; cached scan summary (parquet)</div>
+      <p class="note">Design note: retention time handling is unit-aware (via pyteomics), so time values normalize correctly regardless of how the source format expresses them.</p>
+    </div>
+
+    <div class="stage" id="stage-chromatogram-plotting">
+      <h3>chromatogram_plotting</h3>
+      <p>Generates per-sample TIC/BPC plots, plus (in cohort mode) an overlay of every sample's TIC/BPC colored by <code>sample_role</code> &mdash; the standard cohort-scale QC check for whether all runs look similar in shape/timing or whether one obviously deviates.</p>
+      <div class="io">cached scan summary &rarr; per-sample + overlay TIC/BPC plots</div>
+      <p class="note">Design note: role-color legend entries are deduplicated (3 QC samples don't produce 3 identical "QC" legend lines).</p>
+    </div>
+
+    <div class="stage" id="stage-system-suitability">
+      <h3>system_suitability</h3>
+      <p>In standards-only mode, checks acquired precursor m/z values against known <code>expected_mz</code> reference values.</p>
+    </div>
+
+    <div class="stage" id="stage-feature-detection">
+      <h3>feature_detection</h3>
+      <p>Per-sample MS1 peak picking into a feature list. Unchanged between profiles.</p>
+      <div class="io">cached scan summary &rarr; per-sample feature list (parquet)</div>
+      <p class="note">Validated on MTBLS1301: 6296&rarr;4611 features/sample after filtering, clean %CV (0.9&ndash;2.8%) across QC/NSC/T691/TUM6, RT max ~16.00&nbsp;min across all samples (matches the known 16-min gradient).</p>
+    </div>
+
+    <div class="stage" id="stage-feature-alignment">
+      <h3>feature_alignment <span class="badge new">new &middot; cohort only</span></h3>
+      <p>Aligns per-sample features into consensus features across the full cohort, matching the same underlying ion across samples despite small RT/mz drift.</p>
+      <div class="io">12&times; per-sample feature lists &rarr; 19,409 consensus features</div>
+      <p class="note"><code>rt_tolerance_sec=15</code>, <code>mz_tolerance_ppm=10</code> &mdash; both evidence-based, see <a href="pipeline.html#dd-thresholds">Design Decisions</a>.</p>
+    </div>
+
+    <div class="stage" id="stage-blank-qc">
+      <h3>blank_qc <span class="badge modified">modified for cohort</span></h3>
+      <p>Flags features present in blank samples (contamination/carryover check).</p>
+      <table class="diff-table">
+        <tr><th></th><th>Standards-only</th><th>Cohort-with-QC</th></tr>
+        <tr><td>Input</td><td>per-sample</td><td>aligned feature table, operates in-place</td></tr>
+        <tr><td>MTBLS1301 result</td><td colspan="2">No blank samples in this study &rarr; <code>blank_available: False</code>, 0 flagged (expected, honest &mdash; not silently skipped)</td></tr>
+      </table>
+    </div>
+
+    <div class="stage" id="stage-adduct-annotation">
+      <h3>adduct_annotation <span class="badge modified">modified for cohort</span></h3>
+      <table class="diff-table">
+        <tr><th></th><th>Standards-only</th><th>Cohort-with-QC</th></tr>
+        <tr><td>Behavior</td><td>matches one known compound</td><td>infers adduct relationships from RT co-elution + intensity correlation across the whole feature table</td></tr>
+      </table>
+      <p><code>correlation_threshold=0.75</code> (evidence-based, see <a href="pipeline.html#dd-thresholds">Design Decisions</a>). Result: 19,224 adduct groups from 19,409 features &mdash; healthy size distribution (19,099 singles, 97 pairs, 23 triples, 4 outliers sized 4/7/11/11/14). The size-14 group was hand-verified as a real glucose ion family (adducts + isotopes + dimer + fragments).</p>
+    </div>
+
+    <div class="stage" id="stage-spectral-purity">
+      <h3>spectral_purity <span class="badge">standards-only</span></h3>
+      <p class="note">Superseded in cohort mode &mdash; folded into <code>library_matching</code>'s MS1 co-elution purity calculation (see <a href="pipeline.html#dd-ms2">Design Decisions</a>). The old standards-only class is untouched and still used by that profile.</p>
+    </div>
+
+    <div class="stage" id="stage-library-matching">
+      <h3>library_matching <span class="badge modified">modified for cohort</span></h3>
+      <table class="diff-table">
+        <tr><th></th><th>Standards-only</th><th>Cohort-with-QC</th></tr>
+        <tr><td><code>validate_against_known_identity</code></td><td>True</td><td>False</td></tr>
+      </table>
+      <p>Redesigned around the aligned/annotated table rather than known compounds: merges MS2 spectra across all contributing samples per adduct group, computes MS1 co-elution purity, tiered confidence (<code>high_confidence</code>/<code>tentative</code>/<code>low_confidence</code>/<code>no_match</code>, all thresholds tunable). Result: 793/19,223 matched (4%, reasonable for a 302-entry EMBL-MCF library) &mdash; {high: 105, tentative: 111, low: 263, no_match: 18,744}.</p>
+    </div>
+
+    <div class="stage" id="stage-library-assembly">
+      <h3>library_assembly</h3>
+      <p>Reframed from "row per confirmed compound" (a standards-only concept) to a full annotated feature table, with identification columns left-joined via <code>adduct_group_id</code> &mdash; every group member inherits its group's <code>compound_name</code>/<code>confidence</code>/score.</p>
+      <div class="io">annotated + matched features &rarr; context.final_feature_table</div>
+      <p class="note">Verified: a non-primary row correctly inherited its group's identification from another member of the same adduct group.</p>
+    </div>
+
+    <div class="stage" id="stage-summary-stats-plotting">
+      <h3>summary_stats_plotting</h3>
+      <p>RSD histogram (QC replicates only) and PCA scores plot (log2 + impute-half-min + StandardScaler).</p>
+      <div class="io">context.final_feature_table &rarr; RSD + PCA plots</div>
+      <p class="note">MTBLS1301 result: 14.5% of features above the 20% RSD threshold (healthy). QC separated cleanly on PC1 (expected &mdash; pooled composition). NSC/T691 tightly clustered; TUM6 notably more spread on PC2 &mdash; consistent with TUM6 having the highest feature-count %CV back in <code>feature_detection</code> diagnostics.</p>
+    </div>
+
+    <div class="stage" id="stage-volcano-plot">
+      <h3>volcano_plot <span class="badge new">new &middot; cohort only</span></h3>
+      <p>Pairwise Welch's t-test + Benjamini-Hochberg FDR correction, one comparison per pair of non-QC <code>sample_role</code>s. QC excluded (not a biological condition).</p>
+      <div class="io">context.final_feature_table &rarr; per-comparison volcano plot + CSV</div>
+      <p class="note">Real result on MTBLS1301 (post-fix): NSC_vs_T691 1&nbsp;significant, NSC_vs_TUM6 0, T691_vs_TUM6 14. A replicate-sensitivity re-run excluding TUM6_rep_1 dropped T691_vs_TUM6 to 4 significant &mdash; see <a href="gallery.html#sensitivity">Gallery</a>.</p>
+    </div>
+
+    <div class="stage" id="stage-heatmap-clustering">
+      <h3>heatmap_clustering <span class="badge new">new &middot; cohort only</span></h3>
+      <p>Top-variance features (library-matched only, by default), row z-scored, hierarchical clustering on both axes.</p>
+      <div class="io">context.final_feature_table &rarr; clustered heatmap + z-matrix CSV</div>
+      <p class="note">MTBLS1301 result: TUM6_rep_1 clusters apart from its own replicate group &mdash; traced to a real, quantifiable technical difference (see <a href="gallery.html#sensitivity">Gallery</a>), not excluded from the analysis on that basis alone.</p>
+    </div>
+
+    <div class="stage" id="stage-plsda">
+      <h3>plsda <span class="badge new">new &middot; cohort only</span></h3>
+      <p>3-class PLS-DA (NSC/T691/TUM6), leave-one-out cross-validation, permutation test, and VIP (variable importance in projection) scores &mdash; validation is the point here, since PLS-DA will find <em>some</em> separating direction even in pure noise at small n.</p>
+      <div class="io">context.final_feature_table &rarr; score plot + LOO/permutation metrics + VIP CSV</div>
+      <p class="note">MTBLS1301 result: clean 3-way separation on components 1&ndash;2.</p>
+    </div>
+
+    <div class="stage" id="stage-xic-plotting">
+      <h3>xic_plotting <span class="badge new">new &middot; cohort only</span></h3>
+      <p>Extracted-ion chromatogram verification plots for <code>volcano_plot</code>'s significant features only (see <a href="pipeline.html#dd-xic-scope">Design Decisions</a>), labeled with <code>compound_name</code> when a library match exists.</p>
+      <div class="io">volcano-significant feature IDs + raw scans &rarr; per-feature XIC plot + trace CSV</div>
+    </div>
+
+    <div class="stage" id="stage-export">
+      <h3>export <span class="badge modified">modified for cohort</span></h3>
+      <p>Serializes <code>context.final_feature_table</code> to
+      <code>feature_table.json</code>/<code>.csv</code> (dynamic columns,
+      no fixed schema needed), plus a QC report JSON.</p>
+      <div class="decision">
+        <span class="decision-label">Repositioned</span>
+        Now runs at the true end of the pipeline, after every
+        statistics/verification stage, so it can aggregate their
+        <code>qc_metrics</code> too &mdash; not just serialize the feature
+        table. See <a href="pipeline.html#dd-export">Design Decisions</a>.
+      </div>
+    </div>
+
+  </main>
+</div>
+
+
+<footer>
+  Ionome &middot; <a href="https://github.com/YOUR_USERNAME/YOUR_REPO" title="TODO: replace with the real repo URL">GitHub repository</a>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

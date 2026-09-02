@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ sample.sample_id }} - {{ study_id }} - LCMS Pipeline{% endblock %}
+{% block content %}
+  <p class="hint"><a href="/studies/{{ study_id }}">&larr; {{ study_id }}</a></p>
+  <h1>{{ sample.sample_id }} <span class="badge {{ sample.status.lower() }}">{{ sample.status }}</span></h1>
+
+  <table>
+    <tbody>
+      <tr><th>Role / description</th><td>{{ sample.description or "\u2014" }}</td></tr>
+      <tr><th>Checksum</th><td>{{ sample.checksum }}</td></tr>
+      <tr><th>Ingested at</th><td>{{ sample.ingested_at or "\u2014" }}</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Chromatograms</h2>
+  <div id="sample-plots-container" class="hint">Loading plots&hellip;</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  window.STUDY_ID = {{ study_id | tojson }};
+  window.SAMPLE_ID = {{ sample.sample_id | tojson }};
+</script>
+<script src="/static/js/sample_detail.js"></script>
+{% endblock %}

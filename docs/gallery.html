@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ionome &mdash; Gallery</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="alternate icon" href="favicon.ico">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a href="index.html" class="brand"><img src="assets/icons/favicon.svg" alt=""> Ionome</a>
+    <a href="index.html">Home</a>
+    <a href="pipeline.html">Pipeline</a>
+    <a href="background.html">Background</a>
+    <a href="documentation.html">Documentation</a>
+    <a href="stages.html">Stages</a>
+    <a href="gallery.html" class="current">Gallery</a>
+    <a href="development.html">Development</a>
+    <a href="about.html">About</a>
+    <a class="gh-link" href="https://github.com/YOUR_USERNAME/YOUR_REPO" title="TODO: replace with the real repo URL">GitHub &rarr;</a>
+  </div>
+</nav>
+
+<header class="page-header">
+  <h1>Gallery</h1>
+  <p class="tagline">Real results from the MTBLS1301 cohort run (DKFZ, negative-mode HILIC, 3 cell lines &times; 3 replicates + pooled QC).</p>
+</header>
+
+<div class="layout">
+  <nav class="sidebar">
+    <h4>Results</h4>
+    <ul>
+      <li><a href="#volcano">Volcano plots</a></li>
+      <li><a href="#sensitivity">Replicate sensitivity check</a></li>
+      <li><a href="#plsda">PLS-DA</a></li>
+      <li><a href="#heatmap">Heatmap</a></li>
+      <li><a href="#xic">XIC verification</a></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <section id="volcano">
+      <h2>Volcano plots</h2>
+      <p>
+        Three pairwise comparisons across the non-QC cell lines. Welch's
+        t-test + BH-FDR correction, <code>fc_threshold=1.0</code>,
+        <code>fdr_threshold=0.05</code>. T691_vs_TUM6 is the strongest
+        signal &mdash; and notably so: it has the <em>fewest</em> tested
+        features of the three comparisons but by far the most hits,
+        meaning the effect size is genuinely larger, not an artifact of
+        which features happened to survive the presence filter.
+      </p>
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="assets/results/volcano_NSC_vs_T691.png" alt="Volcano plot, NSC vs T691">
+          <div class="caption"><strong>NSC vs T691</strong> &mdash; 1 significant feature</div>
+        </div>
+        <div class="gallery-item">
+          <img src="assets/results/volcano_NSC_vs_TUM6.png" alt="Volcano plot, NSC vs TUM6">
+          <div class="caption"><strong>NSC vs TUM6</strong> &mdash; 0 significant features</div>
+        </div>
+        <div class="gallery-item">
+          <img src="assets/results/volcano_T691_vs_TUM6.png" alt="Volcano plot, T691 vs TUM6">
+          <div class="caption"><strong>T691 vs TUM6</strong> &mdash; 14 significant features, the strongest signal</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="sensitivity">
+      <h2>Replicate sensitivity check</h2>
+      <p>
+        The heatmap (below) showed TUM6_rep_1 clustering apart from its own
+        replicate group. Investigation found a real, quantifiable technical
+        difference: rep_1 had the <em>fewest</em> detected features
+        (4611, ~5&ndash;7% below its siblings) but the <em>highest</em> total
+        intensity (~10&ndash;28% above them) &mdash; consistent with a mild
+        ion-suppression/matrix effect, not a data-quality failure. RT range,
+        m/z range, and TIC shape were all normal.
+      </p>
+      <p>
+        To check whether this was inflating the T691_vs_TUM6 signal, that
+        comparison was re-run with TUM6_rep_1 excluded (n=2):
+      </p>
+      <table class="diff-table">
+        <tr><th></th><th>Full (n=3)</th><th>rep_1 excluded (n=2)</th></tr>
+        <tr><td>NSC_vs_T691</td><td>1 significant</td><td>1 significant &mdash; unchanged</td></tr>
+        <tr><td>NSC_vs_TUM6</td><td>0 significant</td><td>0 significant &mdash; unchanged</td></tr>
+        <tr><td>T691_vs_TUM6</td><td>14 significant</td><td>4 significant &mdash; ~29% survival</td></tr>
+      </table>
+    </section>
+
+    <section id="plsda">
+      <h2>PLS-DA</h2>
+      <p>Independent line of evidence for the same signal: clean 3-way separation of NSC/T691/TUM6, validated with leave-one-out cross-validation and a permutation test rather than just eyeballing the score plot (PLS-DA will find <em>some</em> separating direction even in noise at small n).</p>
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="assets/results/plsda_scores.png" alt="PLS-DA score plot">
+          <div class="caption"><strong>PLS-DA scores</strong> &mdash; NSC, T691, TUM6 separate cleanly on components 1&ndash;2</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="heatmap">
+      <h2>Heatmap</h2>
+      <p>Top-variance library-matched features, row z-scored, hierarchically clustered on both axes. TUM6_rep_1's separate branch is what triggered the sensitivity investigation above.</p>
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="assets/results/heatmap_clustered.png" alt="Clustered heatmap of library-matched features">
+          <div class="caption"><strong>Clustered heatmap</strong> &mdash; compound-labeled rows, sample-role-colored columns</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="xic">
+      <h2>XIC verification</h2>
+      <p>
+        Chromatographic verification for the volcano-significant features
+        &mdash; does the statistical hit correspond to a real, clean peak?
+        Both plausible for HILIC negative mode: small, early-eluting polar
+        metabolites.
+      </p>
+      <div class="gallery-grid">
+        <div class="gallery-item">
+          <img src="assets/results/xic_1312_Hypotaurine.png" alt="XIC for Hypotaurine">
+          <div class="caption"><strong>Hypotaurine</strong> &mdash; clean peak, apex on target RT (~3.85&nbsp;min); TUM6 clearly elevated over NSC/T691</div>
+        </div>
+        <div class="gallery-item">
+          <img src="assets/results/xic_1867_Proline.png" alt="XIC for Proline">
+          <div class="caption"><strong>Proline</strong> &mdash; real peak; apex sits within the established RT-drift range (&le;15&nbsp;sec) of the aligned consensus RT</div>
+        </div>
+        <div class="gallery-item">
+          <img src="assets/results/xic_1952_Proline.png" alt="XIC for a second Proline-labeled feature">
+          <div class="caption"><strong>Proline (second feature)</strong> &mdash; a different <code>feature_id</code> sharing the same compound name; worth confirming they share an <code>adduct_group_id</code> (expected) rather than being a coincidental double-match</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+
+<footer>
+  Ionome &middot; <a href="https://github.com/YOUR_USERNAME/YOUR_REPO" title="TODO: replace with the real repo URL">GitHub repository</a>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,474 @@
+:root {
+  --bg: #ffffff;
+  --bg-alt: #f7f7f5;
+  --text: #1f1f1d;
+  --text-muted: #5f5e5a;
+  --border: #e3e2dc;
+  --accent: #0f6e56;
+  --accent-bg: #e1f5ee;
+  --coral: #993c1d;
+  --coral-bg: #faece7;
+  --mono: "SF Mono", "Consolas", "Menlo", monospace;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --sidebar-width: 240px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  color: var(--text);
+  background: var(--bg);
+  line-height: 1.6;
+}
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Site-level nav — separate from nav.sidebar, which is per-page anchor nav */
+nav.site-nav {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+nav.site-nav .site-nav-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  height: 3rem;
+  overflow-x: auto;
+}
+
+nav.site-nav a {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+nav.site-nav a:hover { color: var(--text); text-decoration: none; }
+
+nav.site-nav a.current {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+nav.site-nav a.gh-link { margin-left: auto; }
+
+nav.site-nav .brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-right: 0.4rem;
+  color: var(--text);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+nav.site-nav .brand img { height: 22px; width: 22px; display: block; }
+nav.site-nav .brand:hover { color: var(--text); }
+
+.hero .brand-icon { height: 40px; width: 40px; margin-bottom: 0.6rem; }
+
+code {
+  font-family: var(--mono);
+  background: var(--bg-alt);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+header.hero {
+  padding: 3rem 2rem 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+header.hero h1 {
+  font-size: 1.8rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+header.hero p.tagline {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  max-width: 640px;
+}
+
+header.hero .links {
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
+.layout {
+  display: flex;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 2rem 4rem;
+  gap: 2.5rem;
+  align-items: flex-start;
+}
+
+nav.sidebar {
+  position: sticky;
+  top: 2rem;
+  flex: 0 0 var(--sidebar-width);
+  border-right: 1px solid var(--border);
+  padding-right: 1.5rem;
+  max-height: calc(100vh - 4rem);
+  overflow-y: auto;
+}
+
+nav.sidebar h4 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin: 1.2rem 0 0.4rem;
+}
+
+nav.sidebar h4:first-child { margin-top: 0; }
+
+nav.sidebar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+nav.sidebar li a {
+  display: block;
+  padding: 0.25rem 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  border-left: 2px solid transparent;
+  padding-left: 0.6rem;
+  margin-left: -0.6rem;
+}
+
+nav.sidebar li a:hover {
+  color: var(--text);
+  text-decoration: none;
+}
+
+nav.sidebar li a.active {
+  color: var(--accent);
+  border-left-color: var(--accent);
+  font-weight: 600;
+}
+
+main {
+  flex: 1;
+  min-width: 0;
+}
+
+section {
+  margin-bottom: 3rem;
+  scroll-margin-top: 2rem;
+}
+
+section h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+section h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.diagram-card {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  margin: 1rem 0;
+}
+
+.stage {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem 1.4rem;
+  margin-bottom: 1rem;
+  scroll-margin-top: 2rem;
+}
+
+.stage h3 {
+  margin-top: 0;
+  font-family: var(--mono);
+  font-size: 1rem;
+}
+
+.stage .io {
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  background: var(--bg-alt);
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  margin: 0.4rem 0;
+}
+
+.stage .note {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.badge {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  padding: 0.15rem 0.5rem;
+  border-radius: 20px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+}
+
+.badge.modified { background: var(--coral-bg); color: var(--coral); }
+.badge.new { background: var(--accent-bg); color: var(--accent); }
+
+.diff-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin: 0.6rem 0;
+}
+
+.diff-table th, .diff-table td {
+  border: 1px solid var(--border);
+  padding: 0.4rem 0.6rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.diff-table th {
+  background: var(--bg-alt);
+  font-weight: 600;
+  width: 25%;
+}
+
+.todo {
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.9rem;
+}
+
+.plot-placeholder {
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  background: var(--bg-alt);
+}
+
+/* Simpler header for non-home pages (hero stays home-only) */
+header.page-header {
+  padding: 2.2rem 2rem 1.5rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+header.page-header h1 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+}
+
+header.page-header p.tagline {
+  color: var(--text-muted);
+  font-size: 1rem;
+  max-width: 640px;
+}
+
+/* Bug/finding callouts — used for the "why should I trust it" narrative:
+   real bugs found and fixed, not just clean success stories */
+.finding {
+  border-left: 3px solid var(--coral);
+  background: var(--coral-bg);
+  border-radius: 0 8px 8px 0;
+  padding: 0.9rem 1.1rem;
+  margin: 1rem 0;
+  font-size: 0.92rem;
+}
+
+.finding .finding-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--coral);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.decision {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-bg);
+  border-radius: 0 8px 8px 0;
+  padding: 0.9rem 1.1rem;
+  margin: 1rem 0;
+  font-size: 0.92rem;
+}
+
+.decision .decision-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+/* Roadmap status markers */
+.status-list { list-style: none; margin: 0; padding: 0; }
+.status-list li {
+  padding: 0.5rem 0 0.5rem 1.6rem;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  font-size: 0.92rem;
+}
+.status-list li:last-child { border-bottom: none; }
+.status-list li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.85rem;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.status-list li.done::before { background: var(--accent); }
+.status-list li.open::before { background: var(--coral); }
+.status-list li.deferred::before { background: var(--text-muted); }
+.status-list .status-tag {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  margin-left: 0.5rem;
+}
+
+/* Gallery */
+.gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.2rem;
+  margin: 1rem 0;
+}
+.gallery-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.gallery-item img {
+  width: 100%;
+  display: block;
+  background: var(--bg-alt);
+}
+.gallery-item .caption {
+  padding: 0.7rem 0.9rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+.gallery-item .caption strong { color: var(--text); }
+
+.feature-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin: 1.2rem 0;
+}
+.feature-list .feature {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.2rem;
+}
+.feature-list .feature h4 {
+  margin: 0 0 0.3rem;
+  font-size: 0.95rem;
+}
+.feature-list .feature p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+footer {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+@media (max-width: 800px) {
+  .layout { flex-direction: column; }
+  nav.sidebar {
+    position: static;
+    width: 100%;
+    max-height: none;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1rem;
+  }
+}
+
+/* --- Added for the Documentation page rewrite: Getting Started tabs, --- */
+/* --- API endpoint tables, and code blocks.                          --- */
+
+pre.code-block {
+  background: var(--bg-alt);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.9rem 1.1rem;
+  overflow-x: auto;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+pre.code-block code {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+}
+
+.doc-tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin: 1rem 0 0;
+  border-bottom: 1px solid var(--border);
+}
+.doc-tabs button {
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 0.5rem 0.2rem;
+  margin-right: 1rem;
+  font-size: 0.95rem;
+  font-family: var(--sans);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.doc-tabs button.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+.doc-tab-panel { display: none; padding-top: 1rem; }
+.doc-tab-panel.active { display: block; }
+
+.endpoint-table code { white-space: nowrap; }
+.endpoint-table td:first-child { font-weight: 600; }

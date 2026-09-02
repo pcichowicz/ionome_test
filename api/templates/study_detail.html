@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ study.study_id }} - LCMS Pipeline{% endblock %}
+{% block content %}
+  <h1>{{ study.study_id }} <span class="badge {{ study.status.lower() }}">{{ study.status }}</span></h1>
+  <p class="hint">{{ study.dataset_profile or "profile unknown" }}</p>
+
+  <p class="hint" id="readiness-line">Checking sample readiness&hellip;</p>
+  <button id="run-btn">Run study</button>
+  <p class="hint" id="run-status-line"></p>
+
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="samples">Samples</button>
+    <button class="tab-btn" data-tab="plots">Plots</button>
+    <button class="tab-btn" data-tab="table">Feature Table</button>
+    <button class="tab-btn" data-tab="qc">QC Report</button>
+    <button class="tab-btn" data-tab="runs">Run History</button>
+  </nav>
+
+  <section class="tab-panel active" id="tab-samples">
+    <table>
+      <thead><tr><th>Sample ID</th><th>Role</th><th>Status</th></tr></thead>
+      <tbody id="samples-tbody"></tbody>
+    </table>
+  </section>
+
+  <section class="tab-panel" id="tab-plots">
+    <div id="plots-container" class="hint">Loading plots&hellip;</div>
+  </section>
+
+  <section class="tab-panel" id="tab-table">
+    <div id="table-container" class="hint">Loading preview&hellip;</div>
+  </section>
+
+  <section class="tab-panel" id="tab-qc">
+    <pre id="qc-report-container" class="hint">Loading QC report&hellip;</pre>
+  </section>
+
+  <section class="tab-panel" id="tab-runs">
+    <table>
+      <thead><tr><th>Run ID</th><th>Status</th><th>Started</th><th>Finished</th><th>Steps</th></tr></thead>
+      <tbody id="runs-tbody"></tbody>
+    </table>
+  </section>
+{% endblock %}
+{% block scripts %}
+<script>window.STUDY_ID = {{ study.study_id | tojson }};</script>
+<script src="/static/js/study_detail.js"></script>
+{% endblock %}

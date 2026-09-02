@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ionome &mdash; Pipeline Overview</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png">
+<link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png">
+<link rel="alternate icon" href="favicon.ico">
+</head>
+<body>
+
+<nav class="site-nav">
+  <div class="site-nav-inner">
+    <a href="index.html" class="brand"><img src="assets/icons/favicon.svg" alt=""> Ionome</a>
+    <a href="index.html">Home</a>
+    <a href="pipeline.html" class="current">Pipeline</a>
+    <a href="background.html">Background</a>
+    <a href="documentation.html">Documentation</a>
+    <a href="stages.html">Stages</a>
+    <a href="gallery.html">Gallery</a>
+    <a href="development.html">Development</a>
+    <a href="about.html">About</a>
+    <a class="gh-link" href="https://github.com/YOUR_USERNAME/YOUR_REPO" title="TODO: replace with the real repo URL">GitHub &rarr;</a>
+  </div>
+</nav>
+
+<header class="page-header">
+  <h1>Pipeline Overview</h1>
+  <p class="tagline">Workflow, software architecture, and the design decisions behind them.</p>
+</header>
+
+<div class="layout">
+  <nav class="sidebar">
+    <h4>Workflow</h4>
+    <ul>
+      <li><a href="#workflow-standards-only">Standards-only</a></li>
+      <li><a href="#workflow-cohort-with-qc">Cohort-with-QC</a></li>
+    </ul>
+    <h4>Architecture</h4>
+    <ul>
+      <li><a href="#arch-stage-pattern">Stage pattern</a></li>
+      <li><a href="#arch-context-db">Context &amp; DB refactor</a></li>
+      <li><a href="#arch-checkpoint-log">Checkpoint / log split</a></li>
+    </ul>
+    <h4>Design Decisions</h4>
+    <ul>
+      <li><a href="#dd-thresholds">Evidence-based thresholds</a></li>
+      <li><a href="#dd-dimers">Dimer exclusion</a></li>
+      <li><a href="#dd-ms2">MS2 merge strategy</a></li>
+      <li><a href="#dd-export">Export as final aggregator</a></li>
+      <li><a href="#dd-xic-scope">XIC scope</a></li>
+      <li><a href="#dd-csv">Pandas-to-CSV convention</a></li>
+    </ul>
+  </nav>
+
+  <main>
+
+    <section id="workflow">
+      <h2>Workflow</h2>
+
+      <h3 id="workflow-standards-only">Standards-only <span class="badge">complete &middot; tested</span></h3>
+      <p>A straight, sequential run against single-standard data &mdash; no cross-sample alignment needed. Validates known reference compounds.</p>
+      <div class="diagram-card">
+        <img src="assets/diagrams/standards_only_pipeline.svg" alt="Standards-only pipeline: ingestion through export" style="width:100%">
+      </div>
+
+      <h3 id="workflow-cohort-with-qc">Cohort-with-QC <span class="badge">validated on real data</span></h3>
+      <p>
+        Reworked stage-by-stage for real biological cohort data with no
+        known-compound assumptions, then four additional statistics/
+        verification stages. Validated against <strong>MTBLS1301</strong>
+        (DKFZ, negative-mode HILIC, 12 samples: 3 pooled QC + 3 cell lines
+        &times; 3 replicates).
+      </p>
+      <div class="diagram-card">
+        <img src="assets/diagrams/cohort_with_qc_pipeline.svg" alt="Cohort-with-QC pipeline: 16 stages" style="width:100%">
+      </div>
+      <p>
+        Stage order: <code>ingestion &rarr; scan_summary_cache &rarr;
+        chromatogram_plotting &rarr; system_suitability (ordering gate only,
+        see <a href="stages.html#stage-system-suitability">Stages</a>) &rarr;
+        feature_detection &rarr; feature_alignment &rarr; blank_qc &rarr;
+        adduct_annotation &rarr; library_matching &rarr; library_assembly &rarr;
+        summary_stats_plotting &rarr; volcano_plot &rarr; heatmap_clustering &rarr;
+        plsda &rarr; xic_plotting &rarr; export</code>.
+        Full detail on every stage: <a href="stages.html">Stages</a>.
+      </p>
+      <div class="decision">
+        <span class="decision-label">Design decision</span>
+        <code>export</code> is positioned last &mdash; see
+        <a href="#dd-export">Export as final aggregator</a> below for why
+        that wasn't the case earlier in development.
+      </div>
+    </section>
+
+    <section id="architecture">
+      <h2>Software Architecture</h2>
+
+      <h3 id="arch-stage-pattern">The Stage pattern</h3>
+      <p>
+        Every pipeline step is a class with the same contract:
+        <code>validate_input(context)</code>, <code>execute(context) -&gt;
+        context</code>, <code>validate_output(context)</code>. Cohort-mode
+        stages that need materially different logic from their
+        standards-only counterpart get a sibling class
+        (<code>CohortAdductAnnotationStage</code>,
+        <code>CohortLibraryMatchingStage</code>,
+        <code>CohortLibraryAssemblyStage</code>,
+        <code>CohortExportStage</code>) rather than branching inside one
+        class &mdash; the old standards-only classes are left untouched.
+        Every tunable value (RT/mz tolerances, correlation threshold,
+        confidence tiers, RSD threshold, PCA presence fraction) is a
+        constructor parameter; nothing is hardcoded inside a stage.
+      </p>
+
+      <h3 id="arch-context-db">Context &amp; DB refactor</h3>
+      <p>
+        <code>LCMSContext.mzml_file_paths</code> originally globbed a raw
+        data directory directly &mdash; silently cross-contaminating between
+        studies, and missing <code>.mzXML</code> files entirely. Replaced
+        with a DB-driven lookup: <code>Sample.raw_file_path</code> is stored
+        explicitly per sample, <code>LCMSContext</code> takes a required
+        <code>experiment_id: int</code>, and <code>run_pipeline_for_study</code>
+        resolves the human-readable <code>study_id</code> slug to that
+        integer PK via <code>get_experiment_pk_sync()</code> (mirroring the
+        async version the FastAPI ingest route uses).
+      </p>
+
+      <h3 id="arch-checkpoint-log">Checkpoint / log architecture split</h3>
+      <p>
+        Checkpointing (cache-hit comparison) and human-readable logging were
+        originally conflated, so stages without a <code>cache_key()</code>
+        (like <code>ingestion</code>, deliberately never cached) got no
+        persisted log at all. Fixed with an always-runs
+        <code>save_stage_log()</code> call, independent of caching, invoked
+        on both fresh execution and cache-hit paths.
+      </p>
+    </section>
+
+    <section id="design-decisions">
+      <h2>Design Decisions</h2>
+
+      <div class="decision" id="dd-thresholds">
+        <span class="decision-label">Evidence-based thresholds</span>
+        <code>rt_tolerance_sec=15</code> and <code>correlation_threshold=0.75</code>
+        both came from real histograms of the data (RT-drift between QC
+        mass-matched pairs; the correlation distribution across candidate
+        adduct pairs) &mdash; not standards-only defaults, and not picked to
+        maximize a metric with no ceiling. <code>align_features</code>'s own
+        consolidation-% sweep was explicitly rejected as a tuning method: it
+        climbs indefinitely with looser tolerance since there's no
+        correlation gate, making it a trap for picking an artificially loose
+        threshold.
+      </div>
+
+      <div class="decision" id="dd-dimers">
+        <span class="decision-label">Dimer exclusion</span>
+        <code>[2M-H]-</code> dimers are excluded from primary-ion candidacy in
+        <code>annotate_adducts</code> &mdash; never the reference point for
+        neutral-mass back-calculation, even when they're the most intense
+        ion in the group.
+      </div>
+
+      <div class="decision" id="dd-ms2">
+        <span class="decision-label">MS2 merge strategy</span>
+        MS2 spectra are merged across every contributing sample per adduct
+        group (mzmine/GNPS-style consensus), not picked from one
+        "representative" sample. Purity is computed from MS1 co-elution
+        directly, which works even with zero real MS2 triggers &mdash; this
+        solves DDA's sparse "top 10" MS2 coverage problem, rather than only
+        scoring purity from actually-triggered MS2 events.
+      </div>
+
+      <div class="decision" id="dd-export">
+        <span class="decision-label">Export as final aggregator</span>
+        <code>export</code> originally ran immediately after
+        <code>library_assembly</code>, purely to serialize
+        <code>context.final_feature_table</code> to disk
+        (<code>feature_table.json/csv</code>). The four downstream
+        statistics/verification stages were incorrectly gated on
+        <code>export</code> having run, when they only actually depend on
+        <code>library_assembly</code> (which sets
+        <code>final_feature_table</code> &mdash; export just serializes it).
+        That coupling blocked repositioning <code>export</code> as a true
+        final aggregator that also gathers every stage's <code>qc_metrics</code>
+        into one report. Fixed by re-gating those four stages on
+        <code>library_assembly</code> instead, freeing <code>export</code> to
+        move to the true end of the pipeline.
+      </div>
+
+      <div class="decision" id="dd-xic-scope">
+        <span class="decision-label">XIC scope: volcano hits, not all library matches</span>
+        XIC verification plots are generated only for
+        <code>volcano_plot</code>'s statistically significant features, not
+        the full set of high-confidence library matches. An XIC's job here
+        is verifying a specific biological <em>claim</em> (this feature
+        differs between groups) &mdash; that only applies to features you're
+        about to make a claim about. Each plot is labeled with the matched
+        <code>compound_name</code> when the feature happens to have a
+        library ID, or by m/z &amp; RT when it doesn't.
+      </div>
+
+      <div class="decision" id="dd-csv">
+        <span class="decision-label">Every pandas object also gets a CSV</span>
+        Any DataFrame/Series a stage computes &mdash; not just what ends up
+        in a plot &mdash; is also written to CSV alongside it (e.g.
+        <code>volcano_&lt;comparison&gt;.csv</code>,
+        <code>heatmap_z_matrix.csv</code>, <code>plsda_vip_scores.csv</code>,
+        per-feature <code>xic_&lt;feature&gt;.csv</code> traces). Lets the
+        data be inspected or reused from a simple standalone script instead
+        of rerunning a stage or editing plotting code.
+      </div>
+
+    </section>
+
+  </main>
+</div>
+
+
+<footer>
+  Ionome &middot; <a href="https://github.com/YOUR_USERNAME/YOUR_REPO" title="TODO: replace with the real repo URL">GitHub repository</a>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>

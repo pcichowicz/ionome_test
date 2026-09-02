@@ -1,0 +1,55 @@
+study:
+  id: ""
+  polarity: ""
+  instrument: ""
+
+dataset_profile: "standards_only"   # vs "cohort_with_qc" for untargeted dataset
+
+files:
+  sample_metadata: "_sample_metadata.csv" # should have same prefix as study.id
+
+# Will add in more stage parameters here later
+system_suitability:
+  ppm_tolerance: 5.0
+
+feature_detection:
+  mass_error_ppm: 5.0
+  peak_width: [10,60]
+  max_gaps: 2
+  min_scans: 2
+  noise_threshold: 8000.0
+
+feature_alignment:
+  alignment_mz_tolerance_ppm: 5.0
+  alignment_rt_tolerance_sec: 5.0
+
+blank_qc:
+  mz_tolerance_ppm: 5.0
+  rt_tolerance_sec: 5.0
+
+adduct_annotation:
+  primary_adduct: "[M-H]-"
+  ppm_tolerance: 5.0
+  candidate_adducts:
+    - "[M-H]-"
+    - "[M+Cl]-"
+    - "[M+FA-H]-"
+    - "[2M-H]-"
+    - "[M+Na-2H]-"
+
+spectral_purity:
+  isolation_window_da: 1.0
+  min_purity: 0.7
+
+library_matching:
+  reference_library: ""
+  reference_library_source: ""  # pre-built, downloaded — not built from raw files
+  reference_library_path: ""  # local copy of the download above
+  reference_library_format: "msp"      # or "mgf"
+  similarity_metric: "cosine"
+  precursor_mz_tolerance_ppm: 10.0     # wider than feature_detection's ppm
+  fragment_mz_tolerance_da: 0.02
+  min_match_score: 0.7
+  validate_against_known_identity: true
+
+config_version: "v0.1"
