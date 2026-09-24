@@ -1,46 +1,55 @@
 study:
-  id: mtbls1861
-  polarity: positive
-  instrument: Orbitrap
-dataset_profile: standards_only
+  id: "mtbls1861"
+  polarity: "negative"
+  instrument: "Orbitrap"
+
+dataset_profile: "standards_only"   # vs "cohort_with_qc" for untargeted dataset
+
 files:
-  sample_metadata: mtbls1861_sample_metadata.csv
+  sample_metadata: "mtbls1861_sample_metadata.csv"
+
+# Will add in more stage parameters here later
 system_suitability:
-  ppm_tolerance: 5
+  ppm_tolerance: 5.0
+
 feature_detection:
-  mass_error_ppm: 5
-  peak_width:
-  - 10
-  - 60
+  mass_error_ppm: 5.0
+  peak_width: [10,60]
   max_gaps: 2
   min_scans: 2
-  noise_threshold: 8000
+  noise_threshold: 8000.0
+
 feature_alignment:
-  alignment_mz_tolerance_ppm: 5
-  alignment_rt_tolerance_sec: 5
+  alignment_mz_tolerance_ppm: 5.0
+  alignment_rt_tolerance_sec: 5.0
+
 blank_qc:
-  mz_tolerance_ppm: 5
-  rt_tolerance_sec: 5
+  mz_tolerance_ppm: 5.0
+  rt_tolerance_sec: 5.0
+
 adduct_annotation:
-  primary_adduct: '[M-H]-'
-  ppm_tolerance: 5
+  primary_adduct: "[M-H]-"
+  ppm_tolerance: 5.0
   candidate_adducts:
-  - '[M-H]-'
-  - '[M+Cl]-'
-  - '[M+FA-H]-'
-  - '[2M-H]-'
-  - '[M+Na-2H]-'
+    - "[M-H]-"
+    - "[M+Cl]-"
+    - "[M+FA-H]-"
+    - "[2M-H]-"
+    - "[M+Na-2H]-"
+
 spectral_purity:
-  isolation_window_da: 1
+  isolation_window_da: 1.0
   min_purity: 0.7
-library_matching:
-  reference_library: ''
-  reference_library_source: ''
-  reference_library_path: ''
-  reference_library_format: msp
-  similarity_metric: cosine
-  precursor_mz_tolerance_ppm: 10
+
+library_matching:                    # [ADDED, source clarified v2]
+  reference_library: "EMBL-MCF"
+  reference_library_source: "curatr.mcf.embl.de/MS2/export"  # pre-built, downloaded — not built from raw files
+  reference_library_path: "reference_libraries/EMBL-MCF_negative.msp"  # local copy of the download above, relative to base_dir -- see README for how to fetch it
+  reference_library_format: "msp"      # or "mgf"
+  similarity_metric: "cosine"
+  precursor_mz_tolerance_ppm: 10.0     # wider than feature_detection's 5ppm -- library precursor m/z isn't always as precise as your own instrument's calibration
   fragment_mz_tolerance_da: 0.02
   min_match_score: 0.7
-  validate_against_known_identity: true
-config_version: v0.1
+  validate_against_known_identity: true  # [ADDED v2] — MTBLS1861-specific: compares top match to filename-derived ground truth
+
+config_version: "v0.1"

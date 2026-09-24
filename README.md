@@ -18,17 +18,7 @@ docs/          static GitHub Pages site (not a Python package, no build step)
 
 Dependency direction: `core` → `analysis` → `api`.
 
-## Screenshots
-
-| Dashboard | New study wizard |
-|---|---|
-| ![Dashboard](docs/assets/screenshots/dashboard.png) | ![New study wizard](docs/assets/screenshots/new_study_wizard.png) |
-
-| Study detail | Sample detail |
-|---|---|
-| ![Study detail](docs/assets/screenshots/study_detail.png) | ![Sample detail](docs/assets/screenshots/sample_detail.png) |
-
-See `docs/assets/screenshots/README.md` for what to capture in each.
+Screenshots of the dashboard and web app live on the [documentation site](docs/index.html), under Documentation → Using the Web App.
 
 ## Setup
 

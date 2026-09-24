@@ -23,7 +23,6 @@
     <a href="stages.html">Stages</a>
     <a href="gallery.html">Gallery</a>
     <a href="development.html">Development</a>
-    <a href="about.html">About</a>
     <a class="gh-link" href="https://github.com/YOUR_USERNAME/YOUR_REPO" title="TODO: replace with the real repo URL">GitHub &rarr;</a>
   </div>
 </nav>
@@ -112,6 +111,33 @@ context = run_pipeline_for_study("your_study_id")</code></pre>
 
     <section id="using-the-web-app">
       <h2>Using the Web App</h2>
+
+      <div class="doc-tabs" data-doc-tabgroup="webapp-screenshots">
+        <button class="active" data-doc-tab="dashboard" data-doc-tabgroup="webapp-screenshots">Dashboard</button>
+        <button data-doc-tab="new-study" data-doc-tabgroup="webapp-screenshots">New Study</button>
+        <button data-doc-tab="study-detail" data-doc-tabgroup="webapp-screenshots">Study Detail</button>
+        <button data-doc-tab="sample-detail" data-doc-tabgroup="webapp-screenshots">Sample Detail</button>
+      </div>
+
+      <div class="doc-tab-panel active" data-doc-panel="dashboard" data-doc-tabgroup-target="webapp-screenshots">
+        <img class="screenshot" src="assets/screenshots/dashboard.png" alt="Dashboard showing studies with live status badges">
+        <p class="screenshot-caption">One row per study &mdash; profile, status, and a live sample-status breakdown. Auto-refreshes while any study is running.</p>
+      </div>
+
+      <div class="doc-tab-panel" data-doc-panel="new-study" data-doc-tabgroup-target="webapp-screenshots">
+        <img class="screenshot" src="assets/screenshots/new_study_wizard.png" alt="New study wizard with sample metadata and config filled in">
+        <p class="screenshot-caption">The three-step wizard &mdash; scan raw files, fill sample metadata, confirm config &mdash; covered in <a href="#getting-started">Getting Started</a>.</p>
+      </div>
+
+      <div class="doc-tab-panel" data-doc-panel="study-detail" data-doc-tabgroup-target="webapp-screenshots">
+        <img class="screenshot" src="assets/screenshots/study_detail.png" alt="Study detail page with sample list, plots, and QC report">
+        <p class="screenshot-caption">Samples, cohort-wide plots, feature table preview, QC report, and run history for one study.</p>
+      </div>
+
+      <div class="doc-tab-panel" data-doc-panel="sample-detail" data-doc-tabgroup-target="webapp-screenshots">
+        <img class="screenshot" src="assets/screenshots/sample_detail.png" alt="Sample detail page with TIC/BPC chromatograms">
+        <p class="screenshot-caption">One sample's own TIC/BPC chromatograms, role, checksum, and ingestion time.</p>
+      </div>
 
       <div class="feature-list">
         <div class="feature">

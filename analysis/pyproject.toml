@@ -17,8 +17,6 @@ dependencies = [
     "lxml",
     "python-dotenv",
     "pydantic",
-    "pyarrow>=25.0.0",
-    "fastparquet>=2026.5.0",
 ]
 
 [tool.uv.sources]
